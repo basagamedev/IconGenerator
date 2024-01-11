@@ -13,23 +13,16 @@ namespace Icon.Generator
         [Header("Components")]
         [SerializeField] private RenderTexture rendererTexture = null;
         [SerializeField] private Camera bakeCam = null;
-
-        [Header("Icon")]
         [SerializeField] private MeshRenderer meshRenderer = null;
         #endregion
 
         #region PUBLIC_METHODS
         public void Generate()
         {
-            if (meshRenderer == null)
-            {
-                return;
-            }
-
-            CenterObjectInCamera();
-
             string path = SaveLocal();
-            path += meshRenderer.gameObject.name;
+            StringBuilder st = new StringBuilder();
+            st.Append(path);
+            st.Append(meshRenderer.gameObject.name);
 
             bakeCam.targetTexture = rendererTexture;
             RenderTexture currentTexture = RenderTexture.active;
@@ -43,20 +36,17 @@ namespace Icon.Generator
 
             RenderTexture.active = currentTexture;
             byte[] bytesPng = imgPng.EncodeToPNG();
-            System.IO.File.WriteAllBytes(path + ".png", bytesPng);
+            System.IO.File.WriteAllBytes(st.ToString() + ".png", bytesPng);
 
             Debug.Log(meshRenderer.gameObject.name + " generated!");
         }
 
         public void CenterObjectInCamera()
         {
-            if (meshRenderer != null && bakeCam != null)
-            {
-                Vector3 objectCenter = meshRenderer.bounds.center;
-                Vector3 cameraCenterWorld = bakeCam.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, bakeCam.nearClipPlane + 1));
-                Vector3 offset = cameraCenterWorld - objectCenter;
-                meshRenderer.transform.position += offset;
-            }
+            Vector3 objectCenter = meshRenderer.bounds.center;
+            Vector3 cameraCenterWorld = bakeCam.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, bakeCam.nearClipPlane + 1));
+            Vector3 offset = cameraCenterWorld - objectCenter;
+            meshRenderer.transform.position += offset;
         }
         #endregion
 
